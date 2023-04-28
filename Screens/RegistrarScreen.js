@@ -1,87 +1,103 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, FlatList, TextInput, TouchableOpacity } from 'react-native';
+import { StatusBar } from "expo-status-bar";
+import { useState } from "react";
+import * as React from 'react';
+import { StyleSheet, Text, View, ScrollView, TextInput, Button, Alert } from "react-native";
+import app from "../config-firebase";
 
-const Registrar = () => {
-  const renderItem = ({ item }) => (
-    <View style={styles.item}>
-      <Image source={item.image} style={styles.image} />
-      <View style={styles.itemText}>
-        <Text style={styles.title}>{item.name}</Text>
-        <Text style={styles.description}>{item.description}</Text>
-      </View>
-      
-      
-    </View>
-  );
+import {getFirestore, collection, addDoc, getDocs,doc,deleteDoc, getDoc, setDoc} from 'firebase/firestore'
+const db= getFirestore(app)
+export default function RegistroScreen(props){
+  
+    const initialState ={
+      nombre: '',
+      apellido:'',
+      ciudad:'',
+      telefono: '',
+      correo: '',
+}
 
-  return (
-    
-    <View style={styles.container}>
-      <View>
-        <TextInput style={styles.input} placeholder="Apellido Paterno" />
-        <TextInput style={styles.input} placeholder="Apellido Materno" />
-        <TextInput style={styles.input} placeholder="Nombre del Alumno" />
-        <TextInput style={styles.input} placeholder="Fecha de Nacimiento" />
-        <TextInput style={styles.input} placeholder="Curp" />
-        <TextInput style={styles.input} placeholder="Domicilio" />
-        <TouchableOpacity style={styles.button}onPress={()=>navigation.navigate("")}>
-          <Text style={styles.buttonText}>Enviar Formulario </Text>
-        </TouchableOpacity>
-      </View>
-      
-    </View>
-  );
-};
+  const [state, setState] = useState (initialState)
 
-const styles = StyleSheet.create({
+   const handleChangeText =(value, name)=>{
+    setState({...state, [name]:value})
+   }
+
+   const saveUsers =async()=>{
+    try{
+      await addDoc(collection(db,'users'),{
+        ...state
+      })
+      Alert.alert('alerta','guardado con exito')
+      props.navigation.navigate('Menu')
+    }
+    catch{
+      console.error(error)
+    }
+    //console.log(state)
+   }
+   
+   return(
+    <ScrollView style={StyleSheet.container}>
+     <Text style={styles.titulo}>Crear Registro</Text>
+
+     <View style={styles.botones}>
+      <TextInput style={styles.texto} placeholder='nombre' onChangeText={(value)=>handleChangeText(value, 'nombre')}
+      value={state.nombre} />
+     </View>
+     <View style={styles.botones}>
+      <TextInput style={styles.texto} placeholder='apellido' onChangeText={(value)=>handleChangeText(value, 'apellido')}
+      value={state.apellido} />
+     </View>
+
+     <View style={styles.botones}>
+      <TextInput style={styles.texto} placeholder='ciudad' onChangeText={(value)=>handleChangeText(value, 'ciudad')}
+      value={state.ciudad} />
+     </View>
+
+     <View style={styles.botones}>
+     <TextInput style={styles.texto}placeholder='telefono' onChangeText={(value)=>handleChangeText(value, 'telefono')}
+      value={state.telefono} />
+     </View>
+
+     <View style={styles.botones}>
+     <TextInput style={styles.texto} placeholder='correo' onChangeText={(value)=>handleChangeText(value, 'correo')}
+      value={state.correo} />
+     </View>
+
+     <View>
+      <Button title= 'GUARDAR USUARIO' onPress={saveUsers} />
+     </View>
+    </ScrollView>
+   );
+}
+
+const styles =StyleSheet.create({
+  titulo: {
+    textAlign:'center',
+    fontSize:18,
+    marginTop:12, 
+    marginBottom:20
+    },
+
   container: {
     flex: 1,
-    backgroundColor: '#F5FCFF',
-    padding: 10,
-  },
-  item: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
     padding: 20,
-    marginVertical: 8,
-    borderRadius: 5,
-  },
-  image: {
-    width: 100,
-    height: 100,
-    marginRight: 20,
-  },
-  itemText: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  description: {
-    fontSize: 16,
-    marginBottom: 10,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 10,
-    marginVertical: 10,
-    width: '100%',
-  },
-  button: {
-    backgroundColor: '#87ceeb',
-    borderRadius: 5,
-    padding: 10,
-    marginTop: 10,
-    width: '100%',
+    backgroundColor: '#fff',
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  buttonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+  botones: {
+    marginBottom: 10,
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    width: '100%',
   },
+  texto:{
+    
+  }
+
 });
 
-export default Registrar;
